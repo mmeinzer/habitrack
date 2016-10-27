@@ -1,2 +1,2 @@
 # habitrack
-Habit tracker hardware firmware
+Habit tracking hardware firmware
