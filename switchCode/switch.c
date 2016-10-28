@@ -18,7 +18,7 @@
 #define BUTTON_2 PD3
 
 // Delay time before reading button status after button press
-#define DEBOUNCE_TIME 60000
+#define DEBOUNCE_TIME 20000
 
 // Time in between increments of count (in milliseconds)
 #define TIMER 1000
@@ -41,13 +41,15 @@ int Button2Pressed(void) {
 
 // Interrupt method that runs every time INT0 is triggered (Button 1 pressed)
 ISR(INT0_vect) {
-	count++;
+  // Debounce the button with a time delay (microseconds)
+  _delay_us(DEBOUNCE_TIME);
+  count++;
 }
 
 // Initialize interrupt
 void initInterrupt0(void) {
 	EIMSK |= (1 << INT0); // Enable INT0
-	EICRA |= (1 << ISC00); // Trigger on change to INT0
+	//EICRA |= (1 << ISC00); // Trigger on change to INT0
   EICRA |= (1 << ISC01); // Trigger on change to INT0
 	sei(); // Set global interrupt enable bit
 }
@@ -59,6 +61,9 @@ int main(void) {
 
 	// Initialize BUTTON_2 as an input
 	BUTTON_DDR &= ~(1 << BUTTON_2);
+
+  BUTTON_PULL_UP |= (1 << PD2);
+  BUTTON_PULL_UP |= (1 << PD3);
 
 	// Set LED pins to be outputs
 	LED_DDR |= (1 << LED_0);
@@ -75,7 +80,7 @@ int main(void) {
 
 
 		// Check if button is pressed
-		if (Button2Pressed()) {
+		if (!Button2Pressed()) {
 
 			// Debounce the button with a time delay (microseconds)
 			_delay_us(DEBOUNCE_TIME);
